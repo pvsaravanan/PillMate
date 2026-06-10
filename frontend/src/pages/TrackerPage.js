@@ -34,6 +34,16 @@ const TrackerPage = () => {
     return selectedDate < today;
   }, [selectedDate]);
 
+  const isFutureSlot = (slotName) => {
+    if (!isToday) return false;
+    const slotOrder = ['morning', 'afternoon', 'evening', 'night'];
+    const currentIdx = slotOrder.indexOf(currentSlot);
+    const targetIdx = slotOrder.indexOf(slotName);
+    
+    if (currentIdx === -1 || targetIdx === -1) return false;
+    return targetIdx > currentIdx;
+  };
+
   // Generate last 7 days memoized
   const timelineDays = useMemo(() => {
     const days = [];
@@ -322,7 +332,8 @@ const TrackerPage = () => {
                           </div>
 
                           {(() => {
-                            const isDisabled = isPastDate && !status;
+                            const isFuture = isFutureSlot(slotName);
+                            const isDisabled = (isPastDate && !status) || isFuture;
                             return (
                               <div className="flex flex-col items-end gap-1.5">
                                 <div className="flex gap-2">
@@ -355,7 +366,7 @@ const TrackerPage = () => {
                                 </div>
                                 {isDisabled && (
                                   <span className="text-[10px] font-bold uppercase tracking-widest text-clay font-jakarta mr-1">
-                                    Locked (Day Passed)
+                                    {isFuture ? 'Locked (Future Slot)' : 'Locked (Day Passed)'}
                                   </span>
                                 )}
                               </div>
