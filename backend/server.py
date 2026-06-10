@@ -101,6 +101,24 @@ class ContraindictionResult(BaseModel):
 class LanguageList(BaseModel):
     languages: dict
 
+class AdherenceLog(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    medication_id: str
+    medication_name: str
+    date: str  # YYYY-MM-DD
+    time_slot: str  # e.g., morning, evening
+    status: str  # taken, skipped
+    logged_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class AdherenceLogCreate(BaseModel):
+    medication_id: str
+    medication_name: str
+    date: str
+    time_slot: str
+    status: str
+
 def extract_json_from_response(text: str) -> dict:
     """Extract and parse JSON from AI response"""
     text = text.strip()
@@ -395,6 +413,86 @@ async def check_contraindications(data: ContraindictionCheck):
     except Exception as e:
         logging.error(f"Error checking contraindications: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to check contraindications: {str(e)}")
+
+@api_router.post("/adherence", response_model=AdherenceLog)
+async def log_adherence(data: AdherenceLogCreate):
+    try:
+        existing = await db.adherence_logs.find_one({
+            "medication_id": data.medication_id,
+            "date": data.date,
+            "time_slot": data.time_slot
+        })
+        
+        if existing:
+            await db.adherence_logs.update_one(
+                {"_id": existing["_id"]},
+                {"$set": {"status": data.status, "logged_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            updated = await db.adherence_logs.find_one({"_id": existing["_id"]})
+            return AdherenceLog(
+                id=updated.get("id", str(uuid.uuid4())),
+                medication_id=updated["medication_id"],
+                medication_name=updated["medication_name"],
+                date=updated["date"],
+                time_slot=updated["time_slot"],
+                status=updated["status"],
+                logged_at=datetime.fromisoformat(updated["logged_at"]) if isinstance(updated["logged_at"], str) else updated["logged_at"]
+            )
+        else:
+            log_obj = AdherenceLog(
+                medication_id=data.medication_id,
+                medication_name=data.medication_name,
+                date=data.date,
+                time_slot=data.time_slot,
+                status=data.status
+            )
+            doc = log_obj.model_dump()
+            doc['logged_at'] = doc['logged_at'].isoformat()
+            await db.adherence_logs.insert_one(doc)
+            return log_obj
+    except Exception as e:
+        logging.error(f"Error logging adherence: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to log adherence: {str(e)}")
+
+@api_router.get("/adherence", response_model=List[AdherenceLog])
+async def get_adherence(start_date: str, end_date: str):
+    try:
+        logs = await db.adherence_logs.find({
+            "date": {"$gte": start_date, "$lte": end_date}
+        }, {"_id": 0}).to_list(1000)
+        
+        res = []
+        for log in logs:
+            if isinstance(log['logged_at'], str):
+                log['logged_at'] = datetime.fromisoformat(log['logged_at'])
+            res.append(AdherenceLog(**log))
+        return res
+    except Exception as e:
+        logging.error(f"Error fetching adherence: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch adherence: {str(e)}")
+
+@api_router.get("/adherence/stats")
+async def get_adherence_stats(start_date: str, end_date: str):
+    try:
+        logs = await db.adherence_logs.find({
+            "date": {"$gte": start_date, "$lte": end_date}
+        }).to_list(1000)
+        
+        taken = sum(1 for log in logs if log.get("status") == "taken")
+        skipped = sum(1 for log in logs if log.get("status") == "skipped")
+        total = taken + skipped
+        
+        adherence_rate = (taken / total * 100) if total > 0 else 100.0
+        
+        return {
+            "taken": taken,
+            "skipped": skipped,
+            "total": total,
+            "adherence_rate": round(adherence_rate, 2)
+        }
+    except Exception as e:
+        logging.error(f"Error calculating stats: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to calculate stats: {str(e)}")
 
 app.include_router(api_router)
 

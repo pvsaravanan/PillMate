@@ -4,6 +4,7 @@ import '@/App.css';
 import HomePage from './pages/HomePage';
 import UploadPage from './pages/UploadPage';
 import MedicationsPage from './pages/MedicationsPage';
+import TrackerPage from './pages/TrackerPage';
 import { Toaster } from '@/components/ui/sonner';
 
 const Navigation = () => {
@@ -26,6 +27,9 @@ const Navigation = () => {
             </Link>
             <Link to="/medications" className="text-stone-700 hover:text-sage transition-colors duration-300 font-jakarta font-medium">
               My Medications
+            </Link>
+            <Link to="/tracker" className="text-stone-700 hover:text-sage transition-colors duration-300 font-jakarta font-medium">
+              Daily Tracker
             </Link>
           </div>
 
@@ -51,6 +55,9 @@ const Navigation = () => {
             <Link to="/medications" className="block text-stone-700 hover:text-sage transition-colors duration-300 font-jakarta font-medium">
               My Medications
             </Link>
+            <Link to="/tracker" className="block text-stone-700 hover:text-sage transition-colors duration-300 font-jakarta font-medium">
+              Daily Tracker
+            </Link>
           </div>
         )}
       </div>
@@ -67,6 +74,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/medications" element={<MedicationsPage />} />
+          <Route path="/tracker" element={<TrackerPage />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="top-center" richColors />
@@ -74,4 +82,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;
