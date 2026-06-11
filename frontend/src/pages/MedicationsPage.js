@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { deduplicateMedications } from '@/lib/utils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -138,10 +139,10 @@ const MedicationsPage = () => {
     }
   };
 
-  const allMedications = [
+  const allMedications = deduplicateMedications([
     ...medications,
     ...prescriptions.flatMap(p => p.medications)
-  ];
+  ]);
 
   const filteredMedications = allMedications
     .filter((med) => {

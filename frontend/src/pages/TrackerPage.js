@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { deduplicateMedications } from '@/lib/utils';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -93,10 +94,10 @@ const TrackerPage = () => {
     fetchData();
   }, [selectedDate, fetchData]);
 
-  const allMedications = [
+  const allMedications = deduplicateMedications([
     ...medications,
     ...prescriptions.flatMap(p => p.medications)
-  ];
+  ]);
 
   // Map of medication ID/name -> list of logs for the selected date
   const getLogStatus = (medId, timeSlot) => {
