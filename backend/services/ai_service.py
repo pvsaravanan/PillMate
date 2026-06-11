@@ -135,11 +135,11 @@ Provide explanation in {SUPPORTED_LANGUAGES.get(target_language, 'English')}:
 3. Dosage safety reminder
  
 Return ONLY valid JSON:
-{
+{{
     "plain_explanation": "simple explanation",
     "why_timing_matters": "why timing is important",
     "dosage_safety_reminder": "safety reminder"
-}"""
+}}"""
         
         response = model.generate_content(prompt)
         result = extract_json_from_response(response.text)
@@ -174,11 +174,11 @@ async def check_drug_interactions(
 Provide in {SUPPORTED_LANGUAGES.get(language, 'English')}.
  
 Return ONLY valid JSON:
-{
+{{
     "has_contraindications": true/false,
     "warnings": ["list of warnings"],
     "recommendations": "recommendations"
-}"""
+}}"""
         
         response = model.generate_content(prompt)
         result = extract_json_from_response(response.text)

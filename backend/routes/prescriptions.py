@@ -7,6 +7,12 @@ router = APIRouter(prefix="/prescriptions")
 
 @router.post("/upload", response_model=Prescription)
 async def upload_prescription(data: PrescriptionCreate):
+    # 5MB size limit represented in base64 (~7,000,000 characters)
+    if len(data.image_base64) > 7_000_000:
+        raise HTTPException(
+            status_code=400,
+            detail="Prescription image is too large. Max size allowed is 5MB."
+        )
     try:
         return await medication_service.upload_prescription(data)
     except HTTPException as e:

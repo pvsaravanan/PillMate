@@ -35,6 +35,10 @@ const UploadPage = () => {
         toast.error('Please select an image file');
         return;
       }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File size exceeds the 5MB limit. Please upload a smaller image.');
+        return;
+      }
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
