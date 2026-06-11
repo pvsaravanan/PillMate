@@ -361,9 +361,9 @@ async def upload_prescription(data: PrescriptionCreate):
         raise HTTPException(status_code=500, detail=f"Failed to analyze prescription: {str(e)}")
 
 @api_router.get("/prescriptions", response_model=List[Prescription])
-async def get_prescriptions(patient_id: Optional[str] = None):
+async def get_prescriptions(patient_id: Optional[str] = None, skip: int = 0, limit: int = 100):
     query = {"patient_id": patient_id} if patient_id else {}
-    prescriptions = await db.prescriptions.find(query, {"_id": 0}).to_list(1000)
+    prescriptions = await db.prescriptions.find(query, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
     
     for prescription in prescriptions:
         if isinstance(prescription['created_at'], str):
@@ -410,8 +410,8 @@ async def add_medication_manually(data: MedicationCreate):
         raise HTTPException(status_code=500, detail=f"Failed to add medication: {str(e)}")
 
 @api_router.get("/medications", response_model=List[Medication])
-async def get_medications():
-    medications = await db.medications.find({}, {"_id": 0}).to_list(1000)
+async def get_medications(skip: int = 0, limit: int = 100):
+    medications = await db.medications.find({}, {"_id": 0}).skip(skip).limit(limit).to_list(limit)
     
     for med in medications:
         if isinstance(med['created_at'], str):
@@ -477,7 +477,7 @@ async def get_adherence(start_date: str, end_date: str):
     try:
         logs = await db.adherence_logs.find({
             "date": {"$gte": start_date, "$lte": end_date}
-        }, {"_id": 0}).to_list(1000)
+        }, {"_id": 0}).to_list(10000)
         
         res = []
         for log in logs:
@@ -494,7 +494,7 @@ async def get_adherence_stats(start_date: str, end_date: str):
     try:
         logs = await db.adherence_logs.find({
             "date": {"$gte": start_date, "$lte": end_date}
-        }).to_list(1000)
+        }).to_list(10000)
         
         taken = sum(1 for log in logs if log.get("status") == "taken")
         skipped = sum(1 for log in logs if log.get("status") == "skipped")
