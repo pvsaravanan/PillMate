@@ -5,11 +5,12 @@ A multi-language prescription analysis and medication management platform powere
 ## Features
 
 - **Prescription Upload & Analysis** — Upload a photo of your prescription in any language. The AI extracts medication details automatically.
-- **Multi-Language Support** — Supports 10 languages: English, Spanish, Hindi, Arabic, Chinese, French, German, Portuguese, Russian, and Japanese.
+- **Multi-Language Support** — Supports 13 languages: English, Spanish, Hindi, Arabic, Chinese, French, German, Portuguese, Russian, Japanese, Tamil, Telugu, and Korean.
 - **Plain-Language Explanations** — Get easy-to-understand explanations of what each medication does and why timing matters. No medical jargon.
 - **Behavioral Nudges** — Built on Nudge Theory to help improve medication adherence through motivational reminders.
 - **Drug Interaction Checks** — Check for basic contraindications between your medications.
 - **Medication Tracking** — View and manage all your medications in one place.
+- **Daily Adherence Tracking** — Log Taken/Skipped compliance for scheduled time slots on a daily timeline, with End-of-Day date locking and future slot locking to maintain adherence accuracy.
 
 ## Tech Stack
 
@@ -110,6 +111,9 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 | POST | `/api/medications` | Add a medication manually |
 | GET | `/api/medications` | Get all medications |
 | POST | `/api/contraindications/check` | Check drug interactions |
+| POST | `/api/adherence` | Log medication adherence status |
+| GET | `/api/adherence` | Get adherence logs for a date range |
+| GET | `/api/adherence/stats` | Calculate compliance rate and statistics |
 
 ## Project Structure
 
@@ -126,7 +130,8 @@ PillMate/
 │   │   ├── pages/
 │   │   │   ├── HomePage.js
 │   │   │   ├── UploadPage.js
-│   │   │   └── MedicationsPage.js
+│   │   │   ├── MedicationsPage.js
+│   │   │   └── TrackerPage.js
 │   │   ├── components/ui/   # Radix UI components
 │   │   ├── hooks/
 │   │   └── lib/
@@ -140,6 +145,7 @@ PillMate/
 - [Algorithms](docs/ALGORITHMS.md) — Details on the AI-powered prescription analysis and medication explanation algorithms.
 - [Architecture](docs/ARCHITECTURE.md) — System architecture, data flow, and design decisions.
 - [Features](docs/FEATURES.md) — Comprehensive feature descriptions and usage.
+- [Project Graph](docs/PROJECT_GRAPH.md) — Visual graph of the project structure.
 
 ## License
 
