@@ -141,6 +141,18 @@ def extract_json_from_response(text: str) -> dict:
     
     return json.loads(text)
 
+def get_image_mime_type(image_bytes: bytes) -> str:
+    """Detect image MIME type from magic bytes"""
+    if image_bytes.startswith(b'\x89PNG\r\n\x1a\n'):
+        return 'image/png'
+    elif image_bytes.startswith(b'\xff\xd8\xff'):
+        return 'image/jpeg'
+    elif image_bytes.startswith(b'RIFF') and len(image_bytes) > 12 and image_bytes[8:12] == b'WEBP':
+        return 'image/webp'
+    elif image_bytes.startswith(b'GIF87a') or image_bytes.startswith(b'GIF89a'):
+        return 'image/gif'
+    return 'image/png' # fallback
+
 async def analyze_prescription_image(image_base64: str, preferred_language: str) -> dict:
     """Analyze prescription image using Gemini Vision"""
     try:
@@ -149,9 +161,12 @@ async def analyze_prescription_image(image_base64: str, preferred_language: str)
         # Decode base64 to bytes
         image_bytes = base64.b64decode(image_base64)
         
+        # Detect MIME type from bytes
+        mime_type = get_image_mime_type(image_bytes)
+        
         # Create image part for Gemini
         image_part = {
-            'mime_type': 'image/png',
+            'mime_type': mime_type,
             'data': image_bytes
         }
         
