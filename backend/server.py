@@ -41,7 +41,10 @@ SUPPORTED_LANGUAGES = {
     "de": "German",
     "pt": "Portuguese",
     "ru": "Russian",
-    "ja": "Japanese"
+    "ja": "Japanese",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "ko": "Korean"
 }
 
 class PrescriptionCreate(BaseModel):
@@ -174,7 +177,7 @@ async def analyze_prescription_image(image_base64: str, preferred_language: str)
 
 Return ONLY valid JSON (no markdown):
 {
-    "detected_language": "language code (en/es/hi/ar/zh/fr/de/pt/ru/ja)",
+    "detected_language": "language code (en/es/hi/ar/zh/fr/de/pt/ru/ja/ta/te/ko)",
     "detected_language_name": "language name",
     "extracted_text": "full original text from prescription",
     "medications": [
