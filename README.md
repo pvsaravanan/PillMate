@@ -12,6 +12,12 @@ A multi-language prescription analysis and medication management platform powere
 - **Medication Tracking** — View and manage all your medications in one place.
 - **Daily Adherence Tracking** — Log Taken/Skipped compliance for scheduled time slots on a daily timeline, with End-of-Day date locking and future slot locking to maintain adherence accuracy.
 
+### What is Nudge Theory?
+
+**Nudge Theory** is a concept in behavioral science that uses positive reinforcement and indirect suggestions ("nudges") to influence behavior and decision-making, rather than using direct instructions or rules.
+
+In **PillMate**, instead of just showing clinical reminders (like *"Take Metformin 500mg"*), the AI constructs motivational, plain-language nudges explaining *why timing matters* and linking doses to everyday habits (e.g., *"Take your pill with your morning coffee to maintain steady medication levels throughout the day"*).
+
 ## Tech Stack
 
 ### Frontend
