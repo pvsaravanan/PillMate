@@ -15,6 +15,8 @@ import json
 # Google Generative AI imports
 import google.generativeai as genai
 
+from contextlib import asynccontextmanager
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
@@ -22,7 +24,12 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-app = FastAPI(title="PillGuide API", version="2.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    client.close()
+
+app = FastAPI(title="PillGuide API", version="2.0", lifespan=lifespan)
 api_router = APIRouter(prefix="/api")
 
 # Configure Google Generative AI with your API key
@@ -528,6 +535,4 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+# Lifespan context manager is used instead of deprecated shutdown handler to close db client
