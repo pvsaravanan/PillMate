@@ -60,15 +60,25 @@ async def upload_prescription(data: PrescriptionCreate) -> Prescription:
         
         medications_with_explanation = []
         for med in extraction_result.get("medications", []):
-            if not med.get('name'):
+            raw_name = med.get('name')
+            raw_name_english = med.get('name_english')
+            
+            med_name = raw_name_english or raw_name
+            if not med_name:
                 continue
             
-            med_name = med.get('name_english', med.get('name', 'Unknown'))
+            dosage = med.get('dosage') or 'As prescribed'
+            frequency = med.get('frequency') or 'As prescribed'
+            timing = med.get('timing') or []
+            if not isinstance(timing, list):
+                timing = [timing] if timing else []
+            duration = med.get('duration')
+            with_food = med.get('with_food') or False
             
             explanation_data = await generate_medication_explanation(
                 med_name,
-                med.get('dosage', 'Unknown'),
-                med.get('frequency', 'as prescribed'),
+                dosage,
+                frequency,
                 data.preferred_language
             )
             
@@ -76,11 +86,11 @@ async def upload_prescription(data: PrescriptionCreate) -> Prescription:
             
             medication_obj = Medication(
                 name=med_name,
-                dosage=med.get('dosage', 'As prescribed'),
-                frequency=med.get('frequency', 'As prescribed'),
-                timing=med.get('timing', []),
-                duration=med.get('duration'),
-                with_food=med.get('with_food', False),
+                dosage=dosage,
+                frequency=frequency,
+                timing=timing,
+                duration=duration,
+                with_food=with_food,
                 plain_language_explanation=full_explanation,
                 why_timing_matters=explanation_data['why_timing_matters'],
                 warnings=[explanation_data.get('dosage_safety_reminder', '')],
